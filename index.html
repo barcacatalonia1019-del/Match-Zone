@@ -64,7 +64,7 @@ function showPage(page){
     if(!player){alert("اكتب اسمك واحفظه أولًا");return;}
     const h = document.getElementById("h"+m.id).value;
     const a = document.getElementById("a"+m.id).value;
-    if(h===""  a===""  Number(h)<0 || Number(a)<0){alert("اكتب النتيجة للفريقين");return;}
+ if(h===""  a===""  Number(h)<0 || Number(a)<0){alert("اكتب النتيجة للفريقين");return;}   {alert("اكتب النتيجة للفريقين");return;}
     picks[m.id] = {h:Number(h),a:Number(a)};
     alert("تم حفظ التوقع على هذا الجهاز");
    };
