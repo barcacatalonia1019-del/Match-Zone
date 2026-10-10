@@ -7,57 +7,77 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#101010;color:#fff;font-family:Arial,sans-serif}
-header{padding:22px;background:#191919;border-bottom:2px solid #d6ad45}
-h1{margin:0;color:#e4bd58}
-header p{color:#bbb}
-nav{display:flex;gap:8px;padding:12px;overflow:auto}
-button{background:#262626;color:#e4bd58;border:1px solid #66552b;border-radius:9px;padding:12px;cursor:pointer}
-main{padding:14px;max-width:700px;margin:auto}
-.card{background:#1c1c1c;border:1px solid #393126;border-radius:14px;padding:16px;margin:12px 0}
-label{display:block;margin:10px 0;color:#ddd}
-input{background:#101010;color:white;border:1px solid #555;border-radius:7px;padding:10px;width:75px}
-input[type=text]{width:100%}
+header{padding:22px 16px;background:#191919;border-bottom:2px solid #d9b34c}
+h1{color:#e4bd58;margin:0}
+header p{color:#ccc}
+nav{display:flex;gap:8px;padding:12px;justify-content:center}
+button{background:#292929;color:#e4bd58;border:1px solid #77612d;border-radius:9px;padding:12px;cursor:pointer}
+main{max-width:650px;margin:auto;padding:14px}
+.card{background:#1c1c1c;border:1px solid #423722;border-radius:14px;padding:16px;margin:12px 0}
 .gold{color:#e4bd58}
+input{background:#101010;color:white;border:1px solid #666;border-radius:7px;padding:10px;width:80px}
+input[type=text]{width:100%;margin:8px 0}
+label{display:block;margin:12px 0}
 .small{color:#aaa;font-size:13px}
 </style>
 </head>
 <body>
 <header>
 <h1>⚽ MATCH ZONE</h1>
-<p>توقع النتيجة.. واجمع النقاط!</p>
+<p>توقع النتيجة واجمع النقاط!</p>
 </header>
 <nav>
-<button onclick="show('matches')">المباريات</button>
-<button onclick="show('ranking')">الترتيب</button>
-<button onclick="show('rules')">القواعد</button>
+<button onclick="showPage('matches')">المباريات</button>
+<button onclick="showPage('ranking')">الترتيب</button>
+<button onclick="showPage('rules')">القواعد</button>
 </nav>
 <main id="app"></main>
 <script>
-const matches=[
-{id:1,league:"الدوري الإنجليزي",home:"أرسنال",away:"تشيلسي",date:"أضف موعد المباراة"},
-{id:2,league:"دوري أبطال أوروبا",home:"ريال مدريد",away:"يوفنتوس",date:"أضف موعد المباراة"}
+const matches = [
+ {id:1,league:"الدوري الإنجليزي",home:"أرسنال",away:"تشيلسي"},
+ {id:2,league:"دوري أبطال أوروبا",home:"ريال مدريد",away:"يوفنتوس"}
 ];
-let picks=JSON.parse(localStorage.getItem("mz_picks")||"{}");
-let name=localStorage.getItem("mz_name")||"";
-function save(){localStorage.setItem("mz_picks",JSON.stringify(picks))}
-function show(page){
-let app=document.getElementById("app");
-if(page==="matches"){
-app.innerHTML=<div class="card"><h3>اسمك في اللعبة</h3><input type="text" id="player" placeholder="اكتب اسمك" value="${name}" style="width:100%"><button onclick="setName()">حفظ الاسم</button><p class="small">نسخة تجريبية: المباريات هنا أمثلة وليست جدولًا مباشرًا.</p></div>+
-matches.map(m=><div class="card"><span class="gold">${m.league}</span><h3>${m.home} × ${m.away}</h3><p class="small">${m.date}</p><label>${m.home}: <input type="number" min="0" id="h${m.id}" value="${picks[m.id]?.h??''}"></label><label>${m.away}: <input type="number" min="0" id="a${m.id}" value="${picks[m.id]?.a??''}"></label><button onclick="savePick(${m.id})">حفظ التوقع</button></div>).join("");
-}else if(page==="ranking"){
-app.innerHTML=<div class="card"><h2 class="gold">ترتيب اللاعبين</h2><p>التوقعات محفوظة على هذا الجهاز فقط في النسخة التجريبية.</p><p>لا يوجد ترتيب مشترك بين الأصدقاء بعد.</p></div>;
-}else{
-app.innerHTML=<div class="card"><h2 class="gold">نظام النقاط</h2><p>النتيجة الصحيحة بالضبط: 15 نقطة</p><p>توقع الفائز أو التعادل فقط: 5 نقاط</p><p>النتيجة الخاطئة: 0 نقطة</p></div>;
-}}
-function setName(){name=document.getElementById("player").value.trim();localStorage.setItem("mz_name",name);alert("تم حفظ الاسم على هذا الجهاز");}
-function savePick(id){
-if(!name){alert("اكتب اسمك واحفظه أولًا");return}
-let h=document.getElementById("h"+id).value,a=document.getElementById("a"+id).value;
-if(h===""a===""+h<0||+a<0){alert("اكتب توقع النتيجة للفريقين");return}
-picks[id]={h:+h,a:+a};save();alert("تم حفظ توقعك على هذا الجهاز");
+let picks = {};
+let player = "";
+
+function showPage(page){
+ const app = document.getElementById("app");
+ app.replaceChildren();
+
+ if(page === "matches"){
+  const intro = document.createElement("section");
+  intro.className = "card";
+  intro.innerHTML = '<h3>اسم اللاعب</h3><input id="playerName" type="text" placeholder="اكتب اسمك"><button id="saveName">حفظ الاسم</button><p class="small">هذه مباريات تجريبية وليست مباريات حقيقية مباشرة.</p>';
+  app.appendChild(intro);
+  document.getElementById("playerName").value = player;
+  document.getElementById("saveName").onclick = function(){
+   player = document.getElementById("playerName").value.trim();
+   alert(player ? "تم حفظ الاسم على هذا الجهاز" : "اكتب اسمك أولًا");
+  };
+
+  matches.forEach(function(m){
+   const card = document.createElement("section");
+   card.className = "card";
+   card.innerHTML = '<p class="gold">'+m.league+'</p><h3>'+m.home+' × '+m.away+'</h3><label>'+m.home+' <input id="h'+m.id+'" type="number" min="0"></label><label>'+m.away+' <input id="a'+m.id+'" type="number" min="0"></label><button id="p'+m.id+'">حفظ التوقع</button>';
+   app.appendChild(card);
+   document.getElementById("p"+m.id).onclick = function(){
+    if(!player){alert("اكتب اسمك واحفظه أولًا");return;}
+    const h = document.getElementById("h"+m.id).value;
+    const a = document.getElementById("a"+m.id).value;
+    if(h===""  a===""  Number(h)<0 || Number(a)<0){alert("اكتب النتيجة للفريقين");return;}
+    picks[m.id] = {h:Number(h),a:Number(a)};
+    alert("تم حفظ التوقع على هذا الجهاز");
+   };
+  });
+ }
+ else if(page === "ranking"){
+  app.innerHTML = '<section class="card"><h2 class="gold">ترتيب اللاعبين</h2><p>لم تتم إضافة ترتيب مشترك بعد.</p><p class="small">التوقعات محفوظة في ذاكرة الصفحة فقط حاليًا.</p></section>';
+ }
+ else{
+  app.innerHTML = '<section class="card"><h2 class="gold">نظام النقاط</h2><p>🏆 النتيجة الصحيحة بالضبط: 15 نقطة</p><p>✅ توقع الفائز أو التعادل فقط: 5 نقاط</p><p>❌ التوقع الخاطئ: صفر نقطة</p></section>';
+ }
 }
-show("matches");
+showPage("matches");
 </script>
 </body>
 </html>
